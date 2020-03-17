@@ -8,6 +8,8 @@
 
     <div class="content">
 
+      <div class="version">{{ version }}</div>
+
       <template v-if="!searching && favs.length">
         <h2>YOUR FAVS</h2>
         <ul>
@@ -45,13 +47,15 @@ import Thumbnail from '../components/Thumbnail'
 import { mapGetters, mapActions } from 'vuex'
 import debounce from 'debounce'
 import { search } from '../api'
+import pkg from '../../package.json'
 
 export default {
   components: {
     Thumbnail
   },
   data: () => ({
-    search: ''
+    search: '',
+    version: pkg.version
   }),
   computed: { 
     ...mapGetters([
@@ -79,6 +83,7 @@ export default {
     }
   },
   async created() {
+    console.log(`Bankai v${this.version}`)
     await this.$store.dispatch('getList')
     await this.$store.dispatch('getFavs')
     this.$store.dispatch('unload')
@@ -88,6 +93,12 @@ export default {
 
 <style lang="scss">
 .home {
+
+  .version {
+    padding-top: 4px;
+    text-align: center;
+    opacity: .4;
+  }
 
   .search {
     outline: none;
