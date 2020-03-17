@@ -1,20 +1,26 @@
 <template>
-  <div class="thumb" :class="{ '-fav': isFav, '-completed': completed }">
+  <div class="thumb" :class="{ '-fav': isFav, '-completed': manga.completed }">
 
     <Intersect @enter="visible = true">
-      <div class="thumb_cover" :style="{ backgroundImage: (image && visible) ? `url(${image})` : null }"></div>
+      <div class="thumb_cover" :style="{ backgroundImage: (manga.image && visible) ? `url(${manga.image})` : null }"></div>
     </Intersect>
 
     <div class="thumb_content">
 
-      <h3>{{ name }}</h3>
+      <h3>{{ manga.name }}</h3>
 
       <p class="thumb_status">
-        {{ chapters ? chapters.length : '' }}
-        {{ completed ? 'completed' : '' }}
+        <span v-if="chapters" :class="{ uptodate: diff === 0 }">
+          {{ chapters.length }}
+          <sup v-if="diff > 0">-{{ diff }}</sup>
+        </span>
+        <span v-if="chapters">{{ chapters[0].date | date }}</span>
+        <span v-if="manga.completed">completed</span>
       </p>
 
-      <span class="thumb_fav" v-if="isFav">❤</span>
+      <span class="thumb_fav" v-if="isFav">
+        <i class="fa fa-bookmark"></i>
+      </span>
 
     </div>
 
@@ -26,7 +32,7 @@ import { mapMutations } from 'vuex'
 import Intersect from 'vue-intersect'
 
 export default {
-  props: ['id', 'image', 'name', 'completed'],
+  props: ['manga'],
   data: () => ({
     visible: false
   }),
@@ -35,10 +41,16 @@ export default {
   },
   computed: {
     chapters() {
-      return this.$store.state.chapters[this.id]
+      return this.$store.state.chapters[this.manga.slug]
     },
     isFav() {
-      return this.$store.state.favs[this.id]
+      return this.$store.state.favs[this.manga.slug]
+    },
+    diff() {
+      const read = this.$store.state.read[this.manga.slug]
+      if(!read || !this.chapters) return false
+      const readlen = Object.keys(read.chapters).length
+      return this.chapters.length - readlen
     }
   },
   methods: {
@@ -104,17 +116,31 @@ export default {
 
   &_status {
     font-weight: bold;
-    color: rgba(255, 255, 255, .4);
-  }
-  &.-completed &_status {
-    color: coral;
+    opacity: .5;
+
+    span {
+      padding: 0 10px;
+      border-right: 1px solid rgba(255, 255, 255, .2);
+      &:first-child {
+        padding-left: 0;
+      }
+      &:last-child {
+        border: none;
+      }
+      &.uptodate {
+        color: lightseagreen;
+      }
+      sup {
+        color: coral;
+      }
+    }
   }
 
   &_fav {
     position: absolute;
-    bottom: 4px;
+    top: -4px;
     right: 10px;
-    font-size: 22px;
+    font-size: 20px;
     color: coral;
   }
 }

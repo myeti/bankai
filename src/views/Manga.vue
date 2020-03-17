@@ -25,17 +25,21 @@
             <dt>last update</dt>
             <dd>{{ lastChapter.date | date }}</dd>
             <dt>last read</dt>
-            <dd>{{ lastRead || 'never' }}</dd>
+            <dd v-if="read.date">{{ read.date | date }}</dd>
+            <dd v-else>{{ 'never' }}</dd>
           </dl>
-          <button class="cta" @click="select(firstChapter.number)">
-            READ
+          <button class="cta" @click="select(lastChapterRead)">
+            READ {{ (lastChapterRead < 2) ? '' : lastChapterRead }}
           </button>
         </div>
 
       </div>
 
       <ul class="manga_chapters">
-        <li v-for="(chapter, i) in chapters" :key="i" tabindex="0" @click="select(chapter.number)">
+        <li v-for="(chapter, i) in chapters" :key="i"
+            :class="{ read: read.chapters[chapter.number] }"
+            tabindex="0"
+            @click="select(chapter.number)">
           <div class="manga_chapters_number">
             {{ chapter.number }}
           </div>
@@ -64,7 +68,8 @@ export default {
   computed: {
     ...mapGetters([
       'manga',
-      'chapters'
+      'chapters',
+      'read'
     ]),
     isFav() {
       return this.$store.state.favs[this.manga.slug]
@@ -75,8 +80,9 @@ export default {
     lastChapter() {
       return this.chapters[0]
     },
-    lastRead() {
-      return false
+    lastChapterRead() {
+      if(!this.read.date) return this.firstChapter.number;
+      return Math.max(Object.keys(this.read.chapters))
     }
   },
   methods: {
@@ -171,6 +177,9 @@ export default {
       font-weight: bold;
       color: coral;
       width: 40px;
+    }
+    li.read &_number {
+      color: lightseagreen;
     }
 
     &_date {

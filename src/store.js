@@ -12,6 +12,7 @@ export default new Store({
     chapters: {},
     pages: {},
     favs: read('favs'),
+    read: read('read'),
     currentManga: null,
     currentChapter: null
   },
@@ -20,7 +21,8 @@ export default new Store({
     manga: state => state.list.find(m => m.slug === state.currentManga),
     chapters: state => state.chapters[state.currentManga],
     chapter: state => state.chapters[state.currentManga]?.find(c => c.number === state.currentChapter),
-    pages: state => state.pages[`${state.currentManga}:${state.currentChapter}`]
+    pages: state => state.pages[`${state.currentManga}:${state.currentChapter}`],
+    read: state => state.read[state.currentManga] || { chapters: {} }
   },
   mutations: {
     setLoading(state, bool) {
@@ -39,6 +41,17 @@ export default new Store({
       if(bool) Vue.set(state.favs, slug, bool)
       else Vue.delete(state.favs, slug)
       write('favs', state.favs)
+    },
+    setRead(state, { slug, n }) {
+      if(!state.read[slug]) {
+        Vue.set(state.read, slug, {
+          date: parseInt(Date.now() / 1000),
+          last: n,
+          chapters: {}
+        })
+      }
+      Vue.set(state.read[slug].chapters, n, true)
+      write('read', state.read)
     },
     setCurrentManga(state, slug) {
       state.currentManga = slug

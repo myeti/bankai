@@ -11,9 +11,8 @@
         <swiper-slide v-if="prevChapter">
 
           <div class="slide" dir="ltr">
-            Back to previous
             <button class="cta" @click="select(prevChapter.number)">
-              chapter {{ prevChapter.number }}
+              PREV CHAPTER {{ prevChapter.number }}
             </button>
           </div>
 
@@ -27,16 +26,15 @@
             Oh no, could not load this image...
           </div>
           <div class="slide" dir="ltr" v-else>
-            Loading
+            <div class="spinner"></div>
           </div>
 
         </swiper-slide>
         <swiper-slide>
           
           <div class="slide" dir="ltr" v-if="nextChapter">
-            Go to next
-            <button class="cta" @click="select(prevChapter.number)">
-              chapter {{ nextChapter.number }}
+            <button class="cta" @click="select(nextChapter.number)">
+              NEXT CHAPTER {{ nextChapter.number }}
             </button>
           </div>
           <div class="slide" dir="ltr" v-else>
@@ -51,7 +49,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { loadImage } from '../utils'
 
@@ -71,7 +69,8 @@ export default {
     ...mapGetters([
       'manga',
       'chapter',
-      'pages'
+      'pages',
+      'read'
     ]),
     prevChapter() {
       const prev = this.$store.state.currentChapter - 1
@@ -83,6 +82,9 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'setRead'
+    ]),
     ...mapActions([
       'selectChapter',
       'unselectChapter'
@@ -104,14 +106,18 @@ export default {
     async select(n) {
       await this.selectChapter({ slug: this.manga.slug, n })
       this.preload()
-      this.$store.dispatch('unload')
       this.$refs.slider.swiper.slideTo(1)
+      this.$store.dispatch('unload')
     }
   },
   mounted() {
     this.preload()
     this.$store.dispatch('unload')
     this.$refs.slider.swiper.slideTo(1)
+    this.setRead({
+      slug: this.manga.slug,
+      n: this.chapter.number
+    })
   }
 }
 </script>
@@ -142,7 +148,22 @@ export default {
       width: 60%;
       margin-top: 20px;
     }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border-radius: 100%;
+      border: 2px solid #eee;
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+      animation: spinning 1s ease-in-out infinite;
+    }
   }
 
+}
+
+@keyframes spinning {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(180deg) }
 }
 </style>

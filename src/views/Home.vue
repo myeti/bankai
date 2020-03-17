@@ -12,7 +12,7 @@
         <h2>YOUR FAVS</h2>
         <ul>
           <li v-for="(manga, i) in favs" :key="i" tabindex="0" @click="selectManga(manga.slug)">
-            <Thumbnail v-bind="manga" />
+            <Thumbnail :manga="manga" />
           </li>
         </ul>
       </template>
@@ -21,7 +21,7 @@
         <h2>{{ filtered.length }} MANGA</h2>
         <ul>
           <li v-for="(manga, i) in filtered" :key="i" tabindex="0" @click="selectManga(manga.slug)">
-            <Thumbnail v-bind="manga" />
+            <Thumbnail :manga="manga" />
           </li>
         </ul>
       </template>
