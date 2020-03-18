@@ -1,3 +1,5 @@
+import { sortASC, sortDESC } from '@/utils'
+
 export const API_URL = 'https://www.mangaeden.com/api'
 export const CDN_URL = 'http://cdn.mangaeden.com/mangasimg'
 
@@ -21,7 +23,7 @@ export async function getMangaList() {
       image: item.im ? `${CDN_URL}/${item.im}` : null,
       completed: (item.s === 2)
     }))
-    .sort((a, b) => (a.name > b.name) ? 1 : -1)
+    .sort(sortASC('name'))
 }
 
 
@@ -53,7 +55,7 @@ export async function getManga(list, slug) {
 
   // fetch chapters and sort DESC
   const chapters = await getChapters(manga)
-  chapters.sort((a, b) => (a.number > b.number) ? -1 : 1)
+  chapters.sort(sortDESC('number'))
 
   return { manga, chapters }
 }
@@ -113,13 +115,13 @@ export async function getPages(chapter) {
   const res = await fetch(`${API_URL}/chapter/${chapter.id}`)
   const json = await res.json()
 
-  // map clearer props
+  // map clearer props and sort ASC
   return json.images
     .map(item => ({
       number: item[0],
       url: `${CDN_URL}/${item[1]}`
     }))
-    .sort((a, b) => (a.number > b.number) ? 1 : -1)
+    .sort(sortASC('numer'))
 }
 
 

@@ -47,3 +47,23 @@ export function formatDate(ts) {
   const date = new Date(ts * 1000)
   return dateformat(date, 'dd.mm.yyyy')
 }
+
+
+/**
+ * Sort ASC
+ * @param {String} prop
+ * @return {Array}
+ */
+export function sortASC(prop) {
+  return (a, b) => (a[prop] > b[prop]) ? 1 : -1
+}
+
+
+/**
+ * Sort DESC
+ * @param {String} prop
+ * @return {Array}
+ */
+export function sortDESC(prop) {
+  return (a, b) => (a[prop] > b[prop]) ? -1 : 1
+}

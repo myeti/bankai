@@ -8,11 +8,11 @@
     <Home />
 
     <transition name="fade-right">
-      <Manga v-if="currentManga" />
+      <Manga v-if="currentSlug" />
     </transition>
 
     <transition name="fade-right">
-      <Chapter v-if="currentManga && currentChapter" />
+      <Chapter v-if="currentSlug && currentNumber !== false" />
     </transition>
 
   </div>
@@ -36,8 +36,8 @@ export default {
   computed: {
     ...mapState([
       'loading',
-      'currentManga',
-      'currentChapter'
+      'currentSlug',
+      'currentNumber'
     ])
   },
   methods: {
@@ -45,7 +45,7 @@ export default {
       'setLoading'
     ]),
     ...mapActions([
-      'getList',
+      'getMangas',
       'getFavs'
     ])
   }
@@ -97,6 +97,7 @@ html, body {
   font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
+  color: coral;
   border: none;
   background: rgba(255, 255, 255, .05);
   border-bottom: 1px solid rgba(255, 255, 255, .1);
@@ -141,6 +142,9 @@ h2 {
   text-align: center;
   font-weight: bold;
 }
+
+.red { color: coral }
+.green { color: lightseagreen }
 
 /** Animations */
 .fade-enter-active,

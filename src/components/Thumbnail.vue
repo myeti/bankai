@@ -9,14 +9,23 @@
 
       <h3>{{ manga.name }}</h3>
 
-      <p class="thumb_status">
-        <span v-if="chapters" :class="{ uptodate: diff === 0 }">
-          {{ chapters.length }}
-          <sup v-if="diff > 0">-{{ diff }}</sup>
-        </span>
-        <span v-if="chapters">{{ chapters[0].date | date }}</span>
-        <span v-if="manga.completed">completed</span>
-      </p>
+      <ul class="thumb_status">
+        <li v-if="chapters">
+          <i class="fa fa-book"></i> {{ chapters.length }}
+          <span class="red" v-if="lastReadChapter">
+            <i class="fa fa-arrow-right"></i> {{ lastReadChapter }} ({{ readProgress }}%)
+          </span>
+        </li>
+        <li v-if="chapters">
+          <i class="fa fa-clock-o"></i> {{ chapters[0].date | date }}
+        </li>
+        <li class="green" v-if="manga.completed">
+          <i class="fa fa-check"></i> completed
+        </li>
+        <li v-if="!manga.completed">
+          <i class="fa fa-paint-brush"></i> ongoing
+        </li>
+      </ul>
 
       <span class="thumb_fav" v-if="isFav">
         <i class="fa fa-bookmark"></i>
@@ -30,11 +39,13 @@
 <script>
 import { mapMutations } from 'vuex'
 import Intersect from 'vue-intersect'
+import pkg from '../../package.json'
 
 export default {
   props: ['manga'],
   data: () => ({
-    visible: false
+    visible: false,
+    version: pkg.version
   }),
   components: {
     Intersect
@@ -44,13 +55,19 @@ export default {
       return this.$store.state.chapters[this.manga.slug]
     },
     isFav() {
-      return this.$store.state.favs[this.manga.slug]
+      return this.$store.state.favFlags[this.manga.slug]
     },
-    diff() {
-      const read = this.$store.state.read[this.manga.slug]
+    lastReadChapter() {
+      const read = this.$store.state.readFlags[this.manga.slug]
+      if(read?.date) {
+        return Math.max(...Object.keys(read.chapters))
+      }
+    },
+    readProgress() {
+      const read = this.$store.state.readFlags[this.manga.slug]
       if(!read || !this.chapters) return false
       const readlen = Object.keys(read.chapters).length
-      return this.chapters.length - readlen
+      return Math.round(readlen * this.chapters.length / 100)
     }
   },
   methods: {
@@ -65,7 +82,7 @@ export default {
 .thumb {
   position: relative;
   display: flex;
-  height: 80px;
+  height: 130px;
   margin-bottom: 10px;
   padding: 6px;
   border-radius: 2px;
@@ -78,7 +95,7 @@ export default {
   }
 
   &_cover {
-    flex: 0 0 55px;
+    flex: 0 0 80px;
     height: 100%;
     background-position: center center;
     background-size: cover;
@@ -93,14 +110,14 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 4px 14px 4px;
+    padding: 4px 0 4px 14px;
     @media screen and (min-width: 768px) {
       padding: 4px 20px 8px;
     }
 
     h3 {
       margin: 0;
-      font-size: 20px;
+      font-size: 22px;
       line-height: 20px;
       font-weight: normal;
       @media screen and (min-width: 768px) {
@@ -108,30 +125,19 @@ export default {
         line-height: 32px;
       }
     }
-
-    p {
-      margin: 0;
-    }
   }
 
   &_status {
-    font-weight: bold;
-    opacity: .5;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    opacity: .8;
 
-    span {
-      padding: 0 10px;
-      border-right: 1px solid rgba(255, 255, 255, .2);
-      &:first-child {
-        padding-left: 0;
-      }
-      &:last-child {
-        border: none;
-      }
-      &.uptodate {
-        color: lightseagreen;
-      }
-      sup {
-        color: coral;
+    li {
+      margin-top: 5px;
+
+      i {
+        color: inherit;
       }
     }
   }

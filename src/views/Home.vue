@@ -8,31 +8,37 @@
 
     <div class="content">
 
-      <div class="version">{{ version }}</div>
+      <template v-if="!searching && lastRead">
+        <h2>LAST READ</h2>
+        <ul>
+          <li tabindex="0" @click="selectManga(lastRead.slug)">
+            <Thumbnail :manga="lastRead" />
+          </li>
+        </ul>
+      </template>
 
-      <template v-if="!searching && favs.length">
+      <template v-if="!searching && favMangas.length">
         <h2>YOUR FAVS</h2>
         <ul>
-          <li v-for="(manga, i) in favs" :key="i" tabindex="0" @click="selectManga(manga.slug)">
+          <li v-for="(manga, i) in favMangas" :key="i" tabindex="0" @click="selectManga(manga.slug)">
             <Thumbnail :manga="manga" />
           </li>
         </ul>
       </template>
 
       <template v-if="searching">
-        <h2>{{ filtered.length }} MANGA</h2>
+        <h2>{{ searchResults.length }} MANGAS</h2>
         <ul>
-          <li v-for="(manga, i) in filtered" :key="i" tabindex="0" @click="selectManga(manga.slug)">
+          <li v-for="(manga, i) in searchResults" :key="i" tabindex="0" @click="selectManga(manga.slug)">
             <Thumbnail :manga="manga" />
           </li>
         </ul>
       </template>
 
-
-      <template v-if="!searching && !favs.length">
+      <template v-if="!searching && !favMangas.length">
         <p class="home_welcome">
           Welcome !<br>
-          Start searching in more than 7000 manga and fav your most loved to keep track of updates.
+          Start searching in more than 7000 mangas and fav your most loved to keep track of updates.
           <button class="cta" @click="focus">SEARCH</button>
         </p>
       </template>
@@ -47,35 +53,41 @@ import Thumbnail from '../components/Thumbnail'
 import { mapGetters, mapActions } from 'vuex'
 import debounce from 'debounce'
 import { search } from '../api'
-import pkg from '../../package.json'
 
 export default {
   components: {
     Thumbnail
   },
   data: () => ({
-    search: '',
-    version: pkg.version
+    search: ''
   }),
   computed: { 
     ...mapGetters([
-      'favs'
+      'favMangas'
     ]),
     searching() {
       return (this.search.length >= 3)
     }, 
-    filtered() {
+    searchResults() {
       return this.searching
-        ? search(this.$store.state.list, this.search)
-        : this.$store.state.list
-    }
+        ? search(this.$store.state.mangas, this.search)
+        : this.$store.state.mangas
+    },
+    lastRead() {
+      const entries = Object.entries(this.$store.state.readFlags)
+      if(entries.length) {
+        const max = Math.max(...entries.map(e => e[1].date))
+        const [slug] = entries.find(e => e[1].date === max)
+        return this.$store.state.mangas.find(m => m.slug === slug)
+      }
+    },
   },
   methods: {
     ...mapActions([
       'selectManga'
     ]),
     type: debounce(function(e) {
-      console.log('debounced')
+      console.log('search', e.target.value)
       this.search = e.target.value
     }, 350),
     focus() {
@@ -83,8 +95,7 @@ export default {
     }
   },
   async created() {
-    console.log(`Bankai v${this.version}`)
-    await this.$store.dispatch('getList')
+    await this.$store.dispatch('getMangas')
     await this.$store.dispatch('getFavs')
     this.$store.dispatch('unload')
   }
@@ -94,16 +105,11 @@ export default {
 <style lang="scss">
 .home {
 
-  .version {
-    padding-top: 4px;
-    text-align: center;
-    opacity: .4;
-  }
-
   .search {
+    color: #eee;
     outline: none;
     &::placeholder {
-      color: #eee;
+      color: coral;
     }
     &:focus::placeholder {
       color: transparent;

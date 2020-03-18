@@ -66,25 +66,22 @@ export default {
     images: []
   }),
   computed: {
-    ...mapGetters([
-      'manga',
-      'chapter',
-      'pages',
-      'read'
-    ]),
+    ...mapGetters({
+      manga: 'currentManga',
+      chapter: 'currentChapter',
+      pages: 'currentPages',
+      hasRead: 'hasRead'
+    }),
     prevChapter() {
-      const prev = this.$store.state.currentChapter - 1
-      return this.$store.state.chapters[this.$store.state.currentManga]?.find(c => c.number === prev)
+      const prev = this.$store.state.currentNumber - 1
+      return this.$store.state.chapters[this.$store.state.currentSlug]?.find(c => c.number === prev)
     },
     nextChapter() {
-      const next = this.$store.state.currentChapter + 1
-      return this.$store.state.chapters[this.$store.state.currentManga]?.find(c => c.number === next)
+      const next = this.$store.state.currentNumber + 1
+      return this.$store.state.chapters[this.$store.state.currentSlug]?.find(c => c.number === next)
     }
   },
   methods: {
-    ...mapMutations([
-      'setRead'
-    ]),
     ...mapActions([
       'selectChapter',
       'unselectChapter'
@@ -111,13 +108,10 @@ export default {
     }
   },
   mounted() {
+    console.log('Chapter.mounted')
     this.preload()
     this.$store.dispatch('unload')
     this.$refs.slider.swiper.slideTo(1)
-    this.setRead({
-      slug: this.manga.slug,
-      n: this.chapter.number
-    })
   }
 }
 </script>

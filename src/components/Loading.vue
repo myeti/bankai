@@ -1,7 +1,7 @@
 <template>
   <div class="loading">
 
-    <span class="loading_title">❲ BANKAI ❳</span>
+    <span class="loading_title">BANKAI</span>
 
     <div class="loading_spinner">
       <div class="loading_spinner">
@@ -9,8 +9,21 @@
       </div>
     </div>
 
+    <div class="loading_version">v{{ version }}</div>
+
   </div>
 </template>
+
+
+<script>
+import pkg from '../../package.json'
+
+export default {
+  data: () => ({
+    version: pkg.version
+  })  
+}
+</script>
 
 
 <style lang="scss" scoped>
@@ -33,6 +46,7 @@
     transform: translateY(-50%) translateX(-50%);
     font-weight: bold;
     font-size: 22px;
+    color: coral;
   }
 
   &_spinner {
@@ -54,6 +68,16 @@
   }
   &_spinner > &_spinner > &_spinner {
     border-width: 2px;
+  }
+
+  &_version {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    font-size: 13px;
+    text-align: center;
+    opacity: .3;
   }
 }
 

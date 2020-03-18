@@ -13,34 +13,51 @@
         <div class="manga_cover" :style="{ backgroundImage: `url(${manga.image})` }"></div>
 
         <div class="manga_summary">
+
           <button class="fav" @click="setFav({ slug: manga.slug, bool: !isFav })">
             <i class="fa fa-bookmark" v-if="isFav"></i>
             <i class="fa fa-bookmark-o" v-else></i>
           </button>
+
           <dl>
+
             <dt>chapters</dt>
-            <dd>{{ chapters.length }}</dd>
+            <dd>
+              <i class="fa fa-book"></i> {{ chapters.length }}
+            </dd>
+
             <dt>status</dt>
-            <dd>{{ manga.completed ? 'completed' : 'ongoing' }}</dd>
-            <dt>last update</dt>
-            <dd>{{ lastChapter.date | date }}</dd>
-            <dt>last read</dt>
-            <dd v-if="read.date">{{ read.date | date }}</dd>
-            <dd v-else>{{ 'never' }}</dd>
+            <dd class="green" v-if="manga.completed">
+              <i class="fa fa-check"></i> completed
+            </dd>
+            <dd v-else>
+              <i class="fa fa-paint-brush"></i> ongoing
+            </dd>
+
+            <template v-if="hasRead.date">
+              <dt>last read</dt>
+              <dd>
+                <i class="fa fa-file-text-o"></i> {{ lastReadChapter }} ({{ readProgress }}%)
+              </dd>
+              <dd>
+                <i class="fa fa-clock-o"></i> {{ hasRead.date | date }}
+              </dd>
+            </template>
+
           </dl>
-          <button class="cta" @click="select(lastChapterRead)">
-            READ {{ (lastChapterRead < 2) ? '' : lastChapterRead }}
+
+          <button class="cta" @click="select(lastReadChapter)">
+            READ {{ lastReadChapter }}
           </button>
+
         </div>
 
       </div>
 
       <ul class="manga_chapters">
-        <li v-for="(chapter, i) in chapters" :key="i"
-            :class="{ read: read.chapters[chapter.number] }"
-            tabindex="0"
-            @click="select(chapter.number)">
-          <div class="manga_chapters_number">
+        <li v-for="(chapter, i) in chapters" :key="i" tabindex="0" @click="select(chapter.number)">
+          <div class="manga_chapters_number"
+              :class="{ green: hasRead.chapters[chapter.number] }">
             {{ chapter.number }}
           </div>
           <div class="manga_chapters_details">
@@ -66,23 +83,26 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   computed: {
-    ...mapGetters([
-      'manga',
-      'chapters',
-      'read'
-    ]),
+    ...mapGetters({
+      manga: 'currentManga',
+      chapters: 'currentChapters',
+      hasRead: 'hasRead'
+    }),
     isFav() {
-      return this.$store.state.favs[this.manga.slug]
+      return this.$store.state.favFlags[this.manga.slug]
     },
     firstChapter() {
       return this.chapters[this.chapters.length - 1]
     },
-    lastChapter() {
-      return this.chapters[0]
+    lastReadChapter() {
+      return (!this.hasRead.date)
+        ? this.firstChapter.number
+        : Math.max(...Object.keys(this.hasRead.chapters).map(n => parseInt(n)))
     },
-    lastChapterRead() {
-      if(!this.read.date) return this.firstChapter.number;
-      return Math.max(Object.keys(this.read.chapters))
+    readProgress() {
+      if(!this.hasRead) return false
+      const readlen = Object.keys(this.hasRead.chapters).length
+      return Math.round(readlen * this.chapters.length / 100)
     }
   },
   methods: {
@@ -98,6 +118,7 @@ export default {
     }
   },
   mounted() {
+    console.log('Manga.mounted')
     this.$store.dispatch('unload')
   }
 }
@@ -135,13 +156,31 @@ export default {
     dl {
       margin: 0;
 
+      dt {
+        opacity: .5;
+        margin-top: 20px;
+        margin-bottom: 5px;
+        &:first-child {
+          margin-top: 0;
+        }
+      }
       dd {
         margin: 0;
-        margin-bottom: 15px;
-        color: coral;
-        font-size: 22px;
+        margin-top: 8px;
+        font-size: 18px;
         font-weight: bold;
+
+        i {
+          width: 18px;
+          opacity: .6;
+          color: inherit;
+        }
       }
+
+    }
+
+    .cta {
+      margin-top: 40px;
     }
 
     .fav {
@@ -177,9 +216,6 @@ export default {
       font-weight: bold;
       color: coral;
       width: 40px;
-    }
-    li.read &_number {
-      color: lightseagreen;
     }
 
     &_date {
