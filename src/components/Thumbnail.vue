@@ -12,7 +12,7 @@
       <ul class="thumb_status">
         <li v-if="chapters">
           <i class="fa fa-book"></i> {{ chapters.length }}
-          <span class="red" v-if="lastReadChapter">
+          <span v-if="lastReadChapter" :class="{ red: readProgress < 100, green: readProgress === 100 }">
             <i class="fa fa-arrow-right"></i> {{ lastReadChapter }} ({{ readProgress }}%)
           </span>
         </li>
@@ -67,7 +67,7 @@ export default {
       const read = this.$store.state.readFlags[this.manga.slug]
       if(!read || !this.chapters) return false
       const readlen = Object.keys(read.chapters).length
-      return Math.round(readlen * this.chapters.length / 100)
+      return Math.round(readlen * 100 / this.chapters.length)
     }
   },
   methods: {
@@ -138,6 +138,10 @@ export default {
 
       i {
         color: inherit;
+        width: 15px;
+      }
+      span i {
+        text-align: center;
       }
     }
   }

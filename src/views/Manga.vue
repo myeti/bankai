@@ -37,7 +37,7 @@
             <template v-if="hasRead.date">
               <dt>last read</dt>
               <dd>
-                <i class="fa fa-file-text-o"></i> {{ lastReadChapter }} ({{ readProgress }}%)
+                <i class="fa fa-hashtag"></i> {{ lastReadChapter }} ({{ readProgress }}%)
               </dd>
               <dd>
                 <i class="fa fa-clock-o"></i> {{ hasRead.date | date }}
@@ -47,7 +47,7 @@
           </dl>
 
           <button class="cta" @click="select(lastReadChapter)">
-            READ {{ lastReadChapter }}
+            READ #{{ lastReadChapter }}
           </button>
 
         </div>
@@ -102,7 +102,7 @@ export default {
     readProgress() {
       if(!this.hasRead) return false
       const readlen = Object.keys(this.hasRead.chapters).length
-      return Math.round(readlen * this.chapters.length / 100)
+      return Math.round(readlen * 100 / this.chapters.length)
     }
   },
   methods: {
@@ -135,6 +135,7 @@ export default {
 
   &_cover {
     flex: 0 0 55%;
+    padding-top: 87.3%;
     background-position: center center;
     background-size: contain;
     background-color: lightgray;
@@ -203,7 +204,6 @@ export default {
   &_chapters {
     padding: 0;
     margin: 0;
-    margin-top: 20px;
     list-style: none;
 
     li {

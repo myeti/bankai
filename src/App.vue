@@ -184,13 +184,13 @@ h2 {
 .fade-right-enter,
 .fade-right-leave-to {
   opacity: 0;
-  transform: translateX(100%) translateZ(0);
+  transform: translateX(100%);
 }
 
 .fade-up-enter,
 .fade-up-leave-to {
   opacity: 0;
-  transform: translateY(-50px) translateZ(0);
+  transform: translateY(-50px);
 }
 
 </style>

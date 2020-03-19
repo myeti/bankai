@@ -1,7 +1,7 @@
 <template>
   <div class="home page container">
 
-    <input ref="search" class="search head" type="text" autocomplete="off" placeholder="❲ BANKAI ❳" @keyup="type($event)" />
+    <input ref="search" class="search head" type="text" autocomplete="off" placeholder="BANKAI" @keyup="type($event)" />
     <button class="action" @click="focus">
       <i class="fa fa-search"></i>
     </button>
