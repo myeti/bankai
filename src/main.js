@@ -12,3 +12,7 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
+// avoid exit on back
+window.addEventListener('load', () => {
+  window.history.pushState({}, '')
+})

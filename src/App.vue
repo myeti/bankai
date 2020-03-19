@@ -46,8 +46,28 @@ export default {
     ]),
     ...mapActions([
       'getMangas',
-      'getFavs'
+      'getFavs',
+      'unselectManga',
+      'unselectChapter'
     ])
+  },
+  mounted() {
+
+    // change state on navigation
+    window.addEventListener('popstate', () => {
+
+      // prevent navigation
+      window.history.pushState({}, '')
+
+      // update state
+      if(this.currentNumber) {
+        this.unselectChapter()
+      }
+      else if(this.currentSlug) {
+        this.unselectManga()
+      }
+    })
+
   }
 }
 </script>
@@ -143,8 +163,8 @@ h2 {
   font-weight: bold;
 }
 
-.red { color: coral }
-.green { color: lightseagreen }
+.red { color: coral !important }
+.green { color: lightseagreen !important }
 
 /** Animations */
 .fade-enter-active,
