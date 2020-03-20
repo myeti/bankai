@@ -17,7 +17,7 @@
           </div>
 
         </swiper-slide>
-        <swiper-slide v-for="(page, i) in pages" :key="i">
+        <swiper-slide v-for="(page, i) in chapter.pages" :key="i">
           
           <div v-if="images[i]" class="pic">
             <img :src="images[i].src" />
@@ -63,22 +63,21 @@ export default {
       slidesPerView: 'auto'
     },
     preloaded: false,
-    images: []
+    images: [],
   }),
   computed: {
-    ...mapGetters({
-      manga: 'currentManga',
-      chapter: 'currentChapter',
-      pages: 'currentPages',
-      hasRead: 'hasRead'
-    }),
+    ...mapGetters([
+      'manga',
+      'chapter',
+      'meta'
+    ]),
     prevChapter() {
-      const prev = this.$store.state.currentNumber - 1
-      return this.$store.state.chapters[this.$store.state.currentSlug]?.find(c => c.number === prev)
+      const prev = this.$store.state.current.chapter - 1
+      return this.manga.chapters.find(c => c.number === prev)
     },
     nextChapter() {
-      const next = this.$store.state.currentNumber + 1
-      return this.$store.state.chapters[this.$store.state.currentSlug]?.find(c => c.number === next)
+      const next = this.$store.state.current.chapter + 1
+      return this.manga.chapters.find(c => c.number === next)
     }
   },
   methods: {
@@ -88,10 +87,10 @@ export default {
     ]),
     async preload() {
       this.images = []
-      for(let i = 0; i < this.pages.length; i++) {
+      for(let i = 0; i < this.chapter.pages.length; i++) {
         try {
-          const img = await loadImage(this.pages[i].url)
-          console.log(`image ${this.pages[i].url} loaded`)
+          const img = await loadImage(this.chapter.pages[i].url)
+          console.log(`image ${this.chapter.pages[i].url} loaded`)
           this.images.push(img)
         }
         catch(err) {

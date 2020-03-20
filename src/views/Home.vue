@@ -74,12 +74,14 @@ export default {
         : this.$store.state.mangas
     },
     lastRead() {
-      const entries = Object.entries(this.$store.state.readFlags)
-      if(entries.length) {
-        const max = Math.max(...entries.map(e => e[1].date))
-        const [slug] = entries.find(e => e[1].date === max)
-        return this.$store.state.mangas.find(m => m.slug === slug)
+      let slug, date
+      for(let _slug in this.$store.meta) {
+        if(this.$store.meta[_slug].date > date) {
+          date = this.$store.meta[_slug].date
+          slug = _slug
+        }
       }
+      return this.$store.state.mangas.find(m => m.slug === slug)
     },
   },
   methods: {
@@ -109,7 +111,7 @@ export default {
     color: #eee;
     outline: none;
     &::placeholder {
-      color: coral;
+      color: tomato;
     }
     &:focus::placeholder {
       color: transparent;

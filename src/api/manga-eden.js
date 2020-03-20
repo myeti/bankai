@@ -92,7 +92,7 @@ export async function getChapters(manga) {
 export async function getChapter(chapters, slug, n) {
 
   // get chapter by id
-  const chapter = chapters[slug].find(c => c.number === n)
+  const chapter = chapters.find(c => c.number === n)
   if(!chapter) {
     throw Error(`Unknown chapter "${slug}:${n}"`)
   }

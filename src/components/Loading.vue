@@ -46,7 +46,7 @@ export default {
     transform: translateY(-50%) translateX(-50%);
     font-weight: bold;
     font-size: 22px;
-    color: coral;
+    color: tomato;
   }
 
   &_spinner {

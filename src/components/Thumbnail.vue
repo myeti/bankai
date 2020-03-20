@@ -39,35 +39,34 @@
 <script>
 import { mapMutations } from 'vuex'
 import Intersect from 'vue-intersect'
-import pkg from '../../package.json'
 
 export default {
   props: ['manga'],
   data: () => ({
-    visible: false,
-    version: pkg.version
+    visible: false
   }),
   components: {
     Intersect
   },
   computed: {
     chapters() {
-      return this.$store.state.chapters[this.manga.slug]
+      return this.$store.state.mangas[this.manga.slug]?.chapters
     },
     isFav() {
-      return this.$store.state.favFlags[this.manga.slug]
+      return this.$store.state.meta[this.manga.slug]?.fav
     },
     lastReadChapter() {
-      const read = this.$store.state.readFlags[this.manga.slug]
-      if(read?.date) {
-        return Math.max(...Object.keys(read.chapters))
+      const meta = this.$store.state.meta[this.manga.slug]
+      if(meta?.date) {
+        return Math.max(...Object.keys(meta.chapters))
       }
     },
     readProgress() {
-      const read = this.$store.state.readFlags[this.manga.slug]
-      if(!read || !this.chapters) return false
-      const readlen = Object.keys(read.chapters).length
-      return Math.round(readlen * 100 / this.chapters.length)
+      const meta = this.$store.state.meta[this.manga.slug]
+      if(meta && this.chapters?.length) {
+        const len = Object.keys(meta.chapters).length
+        return Math.ceil(len * 100 / this.chapters.length)
+      }
     }
   },
   methods: {
@@ -151,7 +150,7 @@ export default {
     top: -4px;
     right: 10px;
     font-size: 20px;
-    color: coral;
+    color: tomato;
   }
 }
 </style>

@@ -23,7 +23,7 @@
 
             <dt>chapters</dt>
             <dd>
-              <i class="fa fa-book"></i> {{ chapters.length }}
+              <i class="fa fa-book"></i> {{ manga.chapters.length }}
             </dd>
 
             <dt>status</dt>
@@ -34,13 +34,13 @@
               <i class="fa fa-paint-brush"></i> ongoing
             </dd>
 
-            <template v-if="hasRead.date">
+            <template v-if="lastReadDate">
               <dt>last read</dt>
               <dd>
                 <i class="fa fa-hashtag"></i> {{ lastReadChapter }} ({{ readProgress }}%)
               </dd>
               <dd>
-                <i class="fa fa-clock-o"></i> {{ hasRead.date | date }}
+                <i class="fa fa-clock-o"></i> {{ lastReadDate | date }}
               </dd>
             </template>
 
@@ -55,9 +55,9 @@
       </div>
 
       <ul class="manga_chapters">
-        <li v-for="(chapter, i) in chapters" :key="i" tabindex="0" @click="select(chapter.number)">
+        <li v-for="(chapter, i) in manga.chapters" :key="i" tabindex="0" @click="select(chapter.number)">
           <div class="manga_chapters_number"
-              :class="{ green: hasRead.chapters[chapter.number] }">
+              :class="{ green: isRead(chapter.number) }">
             {{ chapter.number }}
           </div>
           <div class="manga_chapters_details">
@@ -83,26 +83,28 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   computed: {
-    ...mapGetters({
-      manga: 'currentManga',
-      chapters: 'currentChapters',
-      hasRead: 'hasRead'
-    }),
+    ...mapGetters([
+      'manga',
+      'meta'
+    ]),
     isFav() {
-      return this.$store.state.favFlags[this.manga.slug]
+      return this.meta?.fav
     },
     firstChapter() {
-      return this.chapters[this.chapters.length - 1]
+      return this.manga.chapters[this.manga.chapters.length - 1]
+    },
+    lastReadDate() {
+      return this.meta?.date
     },
     lastReadChapter() {
-      return (!this.hasRead.date)
-        ? this.firstChapter.number
-        : Math.max(...Object.keys(this.hasRead.chapters).map(n => parseInt(n)))
+      return (!this.lastReadDate)
+        ? this.firstChapter?.number
+        : Math.max(...this.meta.read)
     },
     readProgress() {
-      if(!this.hasRead) return false
-      const readlen = Object.keys(this.hasRead.chapters).length
-      return Math.round(readlen * 100 / this.chapters.length)
+      if(this.meta) {
+        return Math.ceil(this.meta.read.length * 100 / this.manga.chapters.length)
+      }
     }
   },
   methods: {
@@ -113,6 +115,9 @@ export default {
       'selectChapter',
       'unselectManga',
     ]),
+    isRead(n) {
+      return this.meta?.read?.includes(n)
+    },
     select(n) {
       this.selectChapter({ slug: this.manga.slug, n })
     }
@@ -134,8 +139,8 @@ export default {
   }
 
   &_cover {
-    flex: 0 0 55%;
-    padding-top: 87.3%;
+    flex: 0 0 50%;
+    padding-top: 79%;
     background-position: center center;
     background-size: contain;
     background-color: lightgray;
@@ -185,6 +190,7 @@ export default {
     }
 
     .fav {
+      z-index: 20;
       position: absolute;
       top: 15px;
       right: 10px;
@@ -214,7 +220,7 @@ export default {
 
     &_number {
       font-weight: bold;
-      color: coral;
+      color: tomato;
       width: 40px;
     }
 

@@ -8,11 +8,11 @@
     <Home />
 
     <transition name="fade-right">
-      <Manga v-if="currentSlug" />
+      <Manga v-if="current.manga" />
     </transition>
 
     <transition name="fade-right">
-      <Chapter v-if="currentSlug && currentNumber !== false" />
+      <Chapter v-if="current.manga && current.chapter !== false" />
     </transition>
 
   </div>
@@ -36,8 +36,7 @@ export default {
   computed: {
     ...mapState([
       'loading',
-      'currentSlug',
-      'currentNumber'
+      'current',
     ])
   },
   methods: {
@@ -60,10 +59,10 @@ export default {
       window.history.pushState({}, '')
 
       // update state
-      if(this.currentNumber) {
+      if(this.current.chapter) {
         this.unselectChapter()
       }
-      else if(this.currentSlug) {
+      else if(this.current.manga) {
         this.unselectManga()
       }
     })
@@ -117,7 +116,7 @@ html, body {
   font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
-  color: coral;
+  color: tomato;
   border: none;
   background: rgba(255, 255, 255, .05);
   border-bottom: 1px solid rgba(255, 255, 255, .1);
@@ -163,7 +162,7 @@ h2 {
   font-weight: bold;
 }
 
-.red { color: coral !important }
+.red { color: tomato !important }
 .green { color: lightseagreen !important }
 
 /** Animations */

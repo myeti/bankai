@@ -5,29 +5,40 @@ import { read, write } from './utils'
 
 Vue.use(Vuex)
 
+function forceTick(state) {
+  state.meta = Object.assign({}, state.meta)
+}
+
+function initMeta(state, slug) {
+  if(!state.meta[slug]) {
+    state.meta[slug] = {
+      fav: false,
+      date: null,
+      read: []
+    }
+  }
+}
+
 export default new Store({ 
   state: {
     loading: true,
     mangas: [],
-    chapters: {},
-    pages: {},
-    favFlags: read('favs'),
-    readFlags: read('read'),
-    currentSlug: false,
-    currentNumber: false
+    meta: read('meta'),
+    current: {
+      manga: false,
+      chapter: false
+    }
   },
   getters: {
-    favMangas: state => state.mangas.filter(m => Object.keys(state.favFlags).includes(m.slug)),
-    currentManga: state => state.mangas.find(m => m.slug === state.currentSlug),
-    currentChapters: state => state.chapters[state.currentSlug],
-    currentChapter: state => state.chapters[state.currentSlug]?.find(c => c.number === state.currentNumber),
-    currentPages: state => state.pages[`${state.currentSlug}:${state.currentNumber}`],
-    hasRead: state => state.readFlags[state.currentSlug] || { chapters: {} }
+    favMangas: state => state.mangas.filter(m => state.meta[m.slug]?.fav),
+    manga: state => state.mangas.find(m => m.slug === state.current.manga),
+    chapter: (state, getters) => getters.manga?.chapters?.find(c => c.number === state.current.chapter),
+    meta: state => state.meta[state.current.manga]
   },
   mutations: {
     setLoading(state, bool) {
       console.log('mutation.setLoading', bool)
-      state.loading = !!bool
+      state.loading = bool
     },
     setMangas(state, mangas) {
       console.log('mutation.setMangas', mangas)
@@ -35,37 +46,41 @@ export default new Store({
     },
     setChapters(state, { slug, chapters }) {
       console.log('mutation.setChapters', slug, chapters)
-      Vue.set(state.chapters, slug, chapters)
+      const i = state.mangas.findIndex(m => m.slug === slug)
+      Vue.set(state.mangas[i], 'chapters', chapters)
     },
     setPages(state, { slug, n, pages }) {
       console.log('mutation.setPages', slug, n, pages)
-      Vue.set(state.pages, `${slug}:${n}`, pages)
+      const mi = state.mangas.findIndex(m => m.slug === slug)
+      const ci = state.mangas[mi].chapters.findIndex(c => c.number === n)
+      Vue.set(state.mangas[mi].chapters[ci], 'pages', pages)
     },
     setFav(state, { slug, bool }) {
       console.log('mutation.setFav', slug, bool)
-      if(bool) Vue.set(state.favFlags, slug, bool)
-      else Vue.delete(state.favFlags, slug)
-      write('favs', state.favFlags)
+      initMeta(state, slug)
+      Vue.set(state.meta[slug], 'fav', bool)
+      Vue.set(state.meta, slug, Object.assign({}, state.meta[slug]))
+      forceTick(state)
+      write('meta', state.meta)
     },
     setRead(state, { slug, n }) {
       console.log('mutation.setRead', slug, n)
-      if(!state.readFlags[slug]) {
-        Vue.set(state.readFlags, slug, {
-          date: parseInt(Date.now() / 1000),
-          last: n,
-          chapters: {}
-        })
+      initMeta(state, slug)
+      if(!state.meta[slug].read.includes(n)) {
+        state.meta[slug].read.push(n)
       }
-      Vue.set(state.readFlags[slug].chapters, n, true)
-      write('read', state.readFlags)
+      Vue.set(state.meta[slug], 'date', parseInt(Date.now() / 1000))
+      Vue.set(state.meta, slug, Object.assign({}, state.meta[slug]))
+      forceTick(state)
+      write('meta', state.meta)
     },
-    setCurrentSlug(state, slug) {
-      console.log('mutation.setCurrentSlug', slug)
-      state.currentSlug = slug
+    setCurrentManga(state, slug) {
+      console.log('mutation.setCurrentManga', slug)
+      Vue.set(state.current, 'manga', slug)
     },
-    setCurrentNumber(state, n) {
-      console.log('mutation.setCurrentNumber', n)
-      state.currentNumber = n
+    setCurrentChapter(state, n) {
+      console.log('mutation.setCurrentChapter', n)
+      Vue.set(state.current, 'chapter', n)
     }
   },
   actions: {
@@ -78,46 +93,51 @@ export default new Store({
       }
     },
     async getManga({ commit, state }, slug) {
-      if(!state.chapters[slug]) {
+      const manga = state.mangas.find(m => m.slug === slug)
+      if(!manga?.chapters) {
         console.log('action.getManga', slug)
         commit('setLoading', true)
         const { chapters } = await api.getManga(state.mangas, slug)
         commit('setChapters', { slug, chapters })
       }
     },
-    async getChapter({ commit, state }, { slug, n }) {
-      if(!state.pages[`${slug}:${n}`]) {
+    async getChapter({ commit, state, getters }, { slug, n }) {
+      const manga = state.mangas.find(m => m.slug === slug)
+      const chapter = manga?.chapters?.find(c => c.number === n)
+      if(!chapter?.pages) {
         console.log('action.getChapter', slug, n)
         commit('setLoading', true)
-        const { pages } = await api.getChapter(state.chapters, slug, n)
+        const { pages } = await api.getChapter(getters.manga.chapters, slug, n)
         commit('setPages', { slug, n, pages })
       }
     },
     async getFavs({ dispatch, state }) {
       console.log('action.getFavs')
-      for(let slug in state.favFlags) {
-        await dispatch('getManga', slug)
+      for(let slug in state.meta) {
+        if(state.meta[slug].fav) {
+          await dispatch('getManga', slug)
+        }
       }
     },
     async selectManga({ dispatch, commit }, slug) {
       console.log('action.selectManga', slug)
       await dispatch('getManga', slug)
-      commit('setCurrentSlug', slug)
+      commit('setCurrentManga', slug)
     },
     unselectManga({ commit }) {
       console.log('action.unselectManga')
-      commit('setCurrentSlug', false)
+      commit('setCurrentManga', false)
     },
     async selectChapter({ dispatch }, { slug, n }) {
       console.log('action.selectChapter', slug, n)
       const _n = parseInt(n)
       await dispatch('getChapter', { slug, n: _n })
       this.commit('setRead', { slug, n: _n })
-      this.commit('setCurrentNumber', _n)
+      this.commit('setCurrentChapter', _n)
     },
     unselectChapter({ commit }) {
       console.log('action.unselectChapter')
-      commit('setCurrentNumber', false)
+      commit('setCurrentChapter', false)
     },
     unload({ commit }) {
       console.log('action.unload')
