@@ -137,7 +137,7 @@ export default {
     }
   },
   mounted() {
-    console.log('Manga.mounted')
+    console.debug('Manga.mounted')
     this.$store.dispatch('unload')
   }
 }

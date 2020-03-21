@@ -35,7 +35,8 @@ export async function cache(url) {
   if(!_cache) {
     _cache = await caches.open(STORAGE_KEY)
   }
-  await _cache.add(url)
+  const res = await fetch(url, { mode: 'no-cors' })
+  await _cache.add(res)
 }
 
 

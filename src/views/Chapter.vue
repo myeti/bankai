@@ -96,7 +96,7 @@ export default {
       for(let i = 0; i < this.chapter.pages.length; i++) {
         try {
           const img = await loadImage(this.chapter.pages[i].url)
-          console.log(`image ${this.chapter.pages[i].url} loaded`)
+          console.debug(`image ${this.chapter.pages[i].url} loaded`)
           this.images.push(img)
         }
         catch(err) {
@@ -119,7 +119,7 @@ export default {
     }
   },
   mounted() {
-    console.log('Chapter.mounted')
+    console.debug('Chapter.mounted')
     this.preload()
     this.$store.dispatch('unload')
     this.$refs.slider.swiper.slideTo(1)

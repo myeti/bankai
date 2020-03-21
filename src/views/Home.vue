@@ -89,7 +89,7 @@ export default {
       'selectManga'
     ]),
     type: debounce(function(e) {
-      console.log('search', e.target.value)
+      console.debug('search', e.target.value)
       this.search = e.target.value
     }, 350),
     focus() {
