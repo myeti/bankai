@@ -76,19 +76,20 @@ export default {
 @import url('https://fonts.googleapis.com/css?family=Sen&display=swap');
 @import url('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 @import '~swiper/dist/css/swiper.css';
+@import './assets/scss/vars';
 
 * {
   box-sizing: border-box;
   font-family: Sen, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #eee;
+  color: $text-color;
 }
 
 html, body {
   padding: 0;
   margin: 0;
-  background: #293241;
+  background: $bg-dark-color;
 }
 
 /** General */
@@ -98,7 +99,7 @@ html, body {
   left: 0; right: 0;
   display: flex;
   flex-direction: column;
-  background: #293241;
+  background: $bg-dark-color;
   font-size: 13px;
   @media screen and (min-width: 768px) {
     font-size: 16px;
@@ -110,16 +111,17 @@ html, body {
   align-items: center;
   width: 100%;
   min-height: 60px;
-  padding: 18px 40px;
+  padding: 16px 40px;
   margin: 0;
   text-align: center;
   font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
-  color: tomato;
+  color: $prime-color;
   border: none;
-  background: rgba(255, 255, 255, .05);
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  background: $bg-color;
+  border-top: 4px solid $prime-color;
+  box-shadow: 0 0 4px rgba(0, 0, 0, .4);
 }
 .content {
   flex: 1;
@@ -144,6 +146,10 @@ h2 {
   background: transparent;
   font-size: 20px;
   text-decoration: none;
+  outline: none;
+  &:focus {
+    background: $border-color;
+  }
   &.-left {
     right: auto;
     left: 0;
@@ -155,15 +161,19 @@ h2 {
   padding: 10px;
   margin-bottom: 10px;
   background: transparent;
-  border: 2px solid #999;
+  border: 2px solid $border-color;
   border-radius: 2px;
   text-decoration: none;
   text-align: center;
   font-weight: bold;
+  outline: none;
+  &:focus {
+    background: $border-color;
+  }
 }
 
-.red { color: tomato !important }
-.green { color: lightseagreen !important }
+.red { color: $prime-color !important }
+.green { color: $green-color !important }
 
 /** Animations */
 .fade-enter-active,
@@ -172,7 +182,7 @@ h2 {
 .fade-right-leave-active,
 .fade-up-enter-active,
 .fade-up-leave-active {
-  transition: all 300ms;
+  transition: all 300ms ease-out;
 }
 
 .fade-enter,
@@ -183,7 +193,7 @@ h2 {
 .fade-right-enter,
 .fade-right-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(100vw);
 }
 
 .fade-up-enter,

@@ -4,6 +4,9 @@ module.exports = {
     themeColor: 'tomato',
     manifestOptions: {
       background_color: "#293241"
+    },
+    workboxOptions: {
+      skipWaiting: true
     }
   }
 }

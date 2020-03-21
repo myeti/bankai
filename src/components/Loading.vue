@@ -27,6 +27,8 @@ export default {
 
 
 <style lang="scss" scoped>
+@import '../assets/scss/vars';
+
 .loading {
   z-index: 999;
   position: fixed;
@@ -37,7 +39,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #232b38;
+  background: $bg-color;
 
   &_title {
     position: absolute;
@@ -46,7 +48,7 @@ export default {
     transform: translateY(-50%) translateX(-50%);
     font-weight: bold;
     font-size: 22px;
-    color: tomato;
+    color: $prime-color;
   }
 
   &_spinner {
@@ -58,7 +60,7 @@ export default {
     height: 90%;
     width: 90%;
     border-radius: 100%;
-    border: 4px solid #eee;
+    border: 4px solid $text-color;
     border-top-color: transparent;
     border-bottom-color: transparent;
     animation: spin 2s ease-in-out infinite;

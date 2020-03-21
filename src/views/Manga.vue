@@ -130,6 +130,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../assets/scss/vars';
+
 .manga {
 
   &_top {
@@ -143,7 +145,7 @@ export default {
     padding-top: 79%;
     background-position: center center;
     background-size: contain;
-    background-color: lightgray;
+    background-color: $border-color;
     @media screen and (min-width: 768px) {
       flex: 0 0 100px;
     }
@@ -198,7 +200,7 @@ export default {
       height: 35px;
       width: 35px;
       border: none;
-      color: #999;
+      color: $text-color;
       font-size: 22px;
       line-height: 20px;
       padding: 0;
@@ -215,12 +217,16 @@ export default {
     li {
       display: flex;
       padding: 15px;
-      border-top: 1px solid rgba(255, 255, 255, .3);
+      border-top: 1px solid $border-color;
+      outline: none;
+      &:focus {
+        background: $border-color;
+      }
     }
 
     &_number {
       font-weight: bold;
-      color: tomato;
+      color: $prime-color;
       width: 40px;
     }
 

@@ -1,13 +1,13 @@
 <template>
   <div class="chapter page container">
 
-    <h1 class="head">{{ manga.name }} {{ chapter.number }}</h1>
+    <h1 class="head">{{ manga.name }} #{{ chapter.number }}</h1>
     <button class="action" @click="unselectChapter()">
       <i class="fa fa-times"></i>
     </button>
 
-    <div class="content">
-      <swiper ref="slider" class="slider" :options="options" dir="rtl">
+    <div class="content" ref="content">
+      <swiper ref="slider" class="slider" :options="options" dir="rtl" @slideChange="onSlide">
         <swiper-slide v-if="prevChapter">
 
           <div class="slide" dir="ltr">
@@ -17,10 +17,11 @@
           </div>
 
         </swiper-slide>
-        <swiper-slide v-for="(page, i) in chapter.pages" :key="i">
+        <swiper-slide v-for="(page, i) in chapter.pages" :key="i"
+                      :class="{ 'swiper-no-swiping': zoom }">
           
-          <div v-if="images[i]" class="pic">
-            <img :src="images[i].src" />
+          <div v-if="images[i]" class="pic" :class="{ zoom }" @dblclick="toggleZoom">
+            <img :src="images[i].src" :style="{ height: zoom || 'auto' }" />
           </div>
           <div class="slide" dir="ltr" v-else-if="images[i] === false">
             Oh no, could not load this image...
@@ -60,10 +61,15 @@ export default {
   },
   data: () => ({
     options: {
-      slidesPerView: 'auto'
+      slidesPerView: 'auto',
+      keyboard: {
+        enabled: true,
+        onlyInViewport: false,
+      }
     },
     preloaded: false,
     images: [],
+    zoom: false
   }),
   computed: {
     ...mapGetters([
@@ -104,6 +110,12 @@ export default {
       this.preload()
       this.$refs.slider.swiper.slideTo(1)
       this.$store.dispatch('unload')
+    },
+    toggleZoom() {
+      this.zoom = this.zoom ? false : this.$refs.content.offsetHeight + 'px'
+    },
+    onSlide() {
+      this.zoom = false
     }
   },
   mounted() {
@@ -116,6 +128,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../assets/scss/vars';
+
 .chapter {
 
   .swiper-container {
@@ -124,9 +138,18 @@ export default {
 
   .swiper-slide {
     width: 100vw;
+    overflow: auto;
+  }
+
+  .pic {
+    min-height: 100%;
+    text-align: center;
 
     img {
       width: 100%;
+    }
+    &.zoom img {
+      width: auto;
     }
   }
 
@@ -146,7 +169,7 @@ export default {
       width: 30px;
       height: 30px;
       border-radius: 100%;
-      border: 2px solid #eee;
+      border: 2px solid $border-color;
       border-top-color: transparent;
       border-bottom-color: transparent;
       animation: spinning 1s ease-in-out infinite;

@@ -76,6 +76,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../assets/scss/vars';
+
 .thumb {
   position: relative;
   display: flex;
@@ -83,8 +85,8 @@ export default {
   margin-bottom: 10px;
   padding: 6px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(255, 255, 255, .1);
+  background: $bg-lite-color;
+  border: 1px solid $border-color;
   outline: none;
   @media screen and (min-width: 768px) {
     height: 140px;
@@ -96,7 +98,7 @@ export default {
     height: 100%;
     background-position: center center;
     background-size: cover;
-    background-color: lightgray;
+    background-color: $bg-dark-color;
     border-radius: 2px;
     @media screen and (min-width: 768px) {
       flex: 0 0 100px;
@@ -148,7 +150,6 @@ export default {
     top: -4px;
     right: 10px;
     font-size: 20px;
-    color: tomato;
   }
 }
 </style>

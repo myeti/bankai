@@ -105,13 +105,15 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../assets/scss/vars';
+
 .home {
 
   .search {
-    color: #eee;
+    color: $text-color;
     outline: none;
     &::placeholder {
-      color: tomato;
+      color: $prime-color;
     }
     &:focus::placeholder {
       color: transparent;
@@ -123,8 +125,15 @@ export default {
     padding: 0 10px;
     list-style: none;
 
-    li a {
-      text-decoration: none;
+    li {
+      outline: none;
+      &:focus .thumb {
+        background: $border-color;
+      }
+
+      a {
+        text-decoration: none;
+      }
     }
   }
 
