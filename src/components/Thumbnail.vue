@@ -10,14 +10,14 @@
       <h3>{{ manga.name }}</h3>
 
       <ul class="thumb_status">
-        <li v-if="chapters">
-          <i class="fa fa-book"></i> {{ chapters.length }}
+        <li v-if="manga.chapters">
+          <i class="fa fa-book"></i> {{ manga.chapters.length }}
           <span v-if="lastReadChapter" :class="{ red: readProgress < 100, green: readProgress === 100 }">
             <i class="fa fa-arrow-right"></i> {{ lastReadChapter }} ({{ readProgress }}%)
           </span>
         </li>
-        <li v-if="chapters">
-          <i class="fa fa-clock-o"></i> {{ chapters[0].date | date }}
+        <li v-if="manga.chapters">
+          <i class="fa fa-clock-o"></i> {{ manga.updated | date }}
         </li>
         <li class="green" v-if="manga.completed">
           <i class="fa fa-check"></i> completed
@@ -49,23 +49,21 @@ export default {
     Intersect
   },
   computed: {
-    chapters() {
-      return this.$store.state.mangas[this.manga.slug]?.chapters
+    meta() {
+      return this.$store.state.meta[this.manga.slug]
     },
     isFav() {
-      return this.$store.state.meta[this.manga.slug]?.fav
+      return this.meta?.fav
     },
     lastReadChapter() {
-      const meta = this.$store.state.meta[this.manga.slug]
-      if(meta?.date) {
-        return Math.max(...Object.keys(meta.chapters))
+      if(this.meta?.date) {
+        return Math.max(...Object.keys(this.meta.read))
       }
     },
     readProgress() {
-      const meta = this.$store.state.meta[this.manga.slug]
-      if(meta && this.chapters?.length) {
-        const len = Object.keys(meta.chapters).length
-        return Math.ceil(len * 100 / this.chapters.length)
+      if(this.meta && this.manga.chapters?.length) {
+        const len = Object.keys(this.meta.read).length
+        return Math.ceil(len * 100 / this.manga.chapters.length)
       }
     }
   },

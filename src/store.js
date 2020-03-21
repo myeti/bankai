@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import api from './api'
-import { read, write } from './utils'
+import { read, write, sortDESC } from './utils'
 
 Vue.use(Vuex)
 
@@ -30,7 +30,7 @@ export default new Store({
     }
   },
   getters: {
-    favMangas: state => state.mangas.filter(m => state.meta[m.slug]?.fav),
+    favMangas: state => state.mangas.filter(m => state.meta[m.slug]?.fav).sort(sortDESC('updated')),
     manga: state => state.mangas.find(m => m.slug === state.current.manga),
     chapter: (state, getters) => getters.manga?.chapters?.find(c => c.number === state.current.chapter),
     meta: state => state.meta[state.current.manga]
@@ -48,6 +48,7 @@ export default new Store({
       console.log('mutation.setChapters', slug, chapters)
       const i = state.mangas.findIndex(m => m.slug === slug)
       Vue.set(state.mangas[i], 'chapters', chapters)
+      Vue.set(state.mangas[i], 'updated', chapters[0].date)
     },
     setPages(state, { slug, n, pages }) {
       console.log('mutation.setPages', slug, n, pages)
