@@ -1,6 +1,9 @@
 import { STORAGE_KEY } from './enums'
 import dateformat from 'dateformat'
 
+let _cache = null
+let _local = localStorage
+
 
 /**
  * Write JSON in localStorage
@@ -8,7 +11,7 @@ import dateformat from 'dateformat'
  * @param {Object} json 
  */
 export function write(key, json) {
-  localStorage.setItem(`${STORAGE_KEY}:${key}`, JSON.stringify(json))
+  _local.setItem(`${STORAGE_KEY}:${key}`, JSON.stringify(json))
 }
 
 
@@ -19,8 +22,20 @@ export function write(key, json) {
  * @return {Object}
  */
 export function read(key, fallback = {}) {
-  const raw = localStorage.getItem(`${STORAGE_KEY}:${key}`)
+  const raw = _local.getItem(`${STORAGE_KEY}:${key}`)
   return raw ? JSON.parse(raw) : fallback
+}
+
+
+/**
+ * Cache image url
+ * @param {String} url 
+ */
+export async function cache(url) {
+  if(!_cache) {
+    _cache = await caches.open(STORAGE_KEY)
+  }
+  await _cache.add(url)
 }
 
 

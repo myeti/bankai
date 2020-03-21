@@ -14,9 +14,14 @@
 
         <div class="manga_summary">
 
-          <button class="fav" @click="setFav({ slug: manga.slug, bool: !isFav })">
-            <i class="fa fa-bookmark" v-if="isFav"></i>
+          <button class="fav" @click="setFav({ slug: manga.slug, bool: !fav })">
+            <i class="fa fa-bookmark" v-if="fav"></i>
             <i class="fa fa-bookmark-o" v-else></i>
+          </button>
+
+          <button class="download" @click="download">
+            <i class="fa fa-cloud green" v-if="downloaded"></i>
+            <i class="fa fa-cloud-download" v-else></i>
           </button>
 
           <dl>
@@ -87,8 +92,11 @@ export default {
       'manga',
       'meta'
     ]),
-    isFav() {
+    fav() {
       return this.meta?.fav
+    },
+    downloaded() {
+      return this.meta?.downloaded
     },
     firstChapter() {
       return this.manga.chapters[this.manga.chapters.length - 1]
@@ -113,13 +121,19 @@ export default {
     ]),
     ...mapActions([
       'selectChapter',
-      'unselectManga',
+      'unselectManga'
     ]),
     isRead(n) {
       return this.meta?.read?.includes(n)
     },
     select(n) {
       this.selectChapter({ slug: this.manga.slug, n })
+    },
+    download() {
+      if(!this.downloaded) {
+        const ok = confirm('Download all chapters for offline usage?')
+        if(ok) this.$store.dispatch('download')
+      }
     }
   },
   mounted() {
@@ -191,7 +205,7 @@ export default {
       margin-top: 40px;
     }
 
-    .fav {
+    .fav, .download {
       z-index: 20;
       position: absolute;
       top: 15px;
@@ -206,6 +220,9 @@ export default {
       padding: 0;
       outline: none;
       transition: all 300ms;
+    }
+    .download {
+      right: 60px;
     }
   }
 

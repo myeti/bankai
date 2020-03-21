@@ -1,7 +1,7 @@
 <template>
   <div class="loading">
 
-    <span class="loading_title">BANKAI</span>
+    <span class="loading_title">{{ text || 'BANKAI' }}</span>
 
     <div class="loading_spinner">
       <div class="loading_spinner">
@@ -19,6 +19,7 @@
 import pkg from '../../package.json'
 
 export default {
+  props: ['text'],
   data: () => ({
     version: pkg.version
   })  

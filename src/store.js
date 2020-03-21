@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import api from './api'
-import { read, write, sortDESC } from './utils'
+import { read, write, cache, sortDESC } from './utils'
 
 Vue.use(Vuex)
 
@@ -13,6 +13,7 @@ function initMeta(state, slug) {
   if(!state.meta[slug]) {
     state.meta[slug] = {
       fav: false,
+      downloaded: false,
       date: null,
       read: []
     }
@@ -22,6 +23,7 @@ function initMeta(state, slug) {
 export default new Store({ 
   state: {
     loading: true,
+    loadingText: null,
     mangas: [],
     meta: read('meta'),
     current: {
@@ -39,6 +41,13 @@ export default new Store({
     setLoading(state, bool) {
       console.log('mutation.setLoading', bool)
       state.loading = bool
+      if(state.loading !== bool) {
+        state.loadingText = null
+      }
+    },
+    setLoadingText(state, text) {
+      console.log('mutation.setLoadingText', text)
+      state.loadingText = text
     },
     setMangas(state, mangas) {
       console.log('mutation.setMangas', mangas)
@@ -60,6 +69,14 @@ export default new Store({
       console.log('mutation.setFav', slug, bool)
       initMeta(state, slug)
       Vue.set(state.meta[slug], 'fav', bool)
+      Vue.set(state.meta, slug, Object.assign({}, state.meta[slug]))
+      forceTick(state)
+      write('meta', state.meta)
+    },
+    setDownloaded(state, slug) {
+      console.log('mutation.setDownloaded', slug)
+      initMeta(state, slug)
+      Vue.set(state.meta[slug], 'downloaded', true)
       Vue.set(state.meta, slug, Object.assign({}, state.meta[slug]))
       forceTick(state)
       write('meta', state.meta)
@@ -135,6 +152,29 @@ export default new Store({
       await dispatch('getChapter', { slug, n: _n })
       this.commit('setRead', { slug, n: _n })
       this.commit('setCurrentChapter', _n)
+    },
+    async download({ dispatch, commit, state, getters }) {
+      console.log('action.download')
+      const slug = getters.manga.slug
+      initMeta(state, slug)
+      commit('setLoading', true)
+      commit('setLoadingText', '0%')
+      try {
+        for(let i = 0; i < getters.manga.chapters.length; i++) {
+          const chapter = getters.manga.chapters[i]
+          await dispatch('getChapter', { slug, n: chapter.number })
+          for(let j = chapter.pages.length; j--;) {
+            await cache(chapter.pages[j].url)
+          }
+          const p = Math.ceil((i*1) * 100 / getters.manga.chapters.length)
+          commit('setLoadingText', `${p}%`)
+        }
+        commit('setDownloaded', slug)
+      }
+      catch(err) {
+        alert('Error, aborting.')
+      }
+      commit('setLoading', false)
     },
     unselectChapter({ commit }) {
       console.log('action.unselectChapter')

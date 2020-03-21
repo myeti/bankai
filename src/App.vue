@@ -2,7 +2,7 @@
   <div id="app">
 
     <transition name="fade">
-      <Loading v-if="loading" />
+      <Loading v-if="loading" :text="loadingText" />
     </transition>
 
     <Home />
@@ -36,6 +36,7 @@ export default {
   computed: {
     ...mapState([
       'loading',
+      'loadingText',
       'current',
     ])
   },
